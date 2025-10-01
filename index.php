@@ -1,5 +1,7 @@
 <?php include "db.php"; 
 session_start();
+// remove all session variables
+ // destroy the session
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -21,6 +23,9 @@ if (!isset($_SESSION['user_id'])) {
         <tr>
             <th>ID</th><th>Title</th><th>Description</th><th>Status</th><th>Actions</th>
         </tr>
+
+        <a href="logout.php">Logout</a>
+
         <?php
         $user_id = $_SESSION['user_id'];
         $result = $conn->query("SELECT * FROM tasks WHERE user_id=$user_id ORDER BY created_at DESC");
