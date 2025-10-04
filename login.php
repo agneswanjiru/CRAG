@@ -27,7 +27,7 @@ if (isset($_POST['login'])) {
             $errormsg = "Invalid password!";
         }
     } else {
-        $errormsg = "User not found or role mismatch!";
+        $errormsg = "invalid password or role mismatch!";
     }
 }
 ?>
