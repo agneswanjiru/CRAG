@@ -1,6 +1,13 @@
 <?php
+include 'db.php'; 
 session_start();
-require_once 'db.php';
+
+// Include PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/phpmailer/phpmailer/src/Exception.php';
+require 'vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require 'vendor/phpmailer/phpmailer/src/SMTP.php';
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -16,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+        // check if username/email exists
         $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1");
         $stmt->bind_param('ss', $username, $email);
         $stmt->execute();
@@ -25,17 +33,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         } else {
             $stmt->close();
+
             $hash = password_hash($password, PASSWORD_BCRYPT);
-            $ins = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-            $ins->bind_param('ssss', $username, $email, $hash, $role);
+            $otp = (string) rand(100000, 999999); // 6-digit OTP as string
+
+            // Insert with OTP and unverified status
+            $ins = $conn->prepare("INSERT INTO users (username, email, password, role, otp, is_verified) VALUES (?, ?, ?, ?, ?, 0)");
+            $ins->bind_param('sssss', $username, $email, $hash, $role, $otp);
+
             if ($ins->execute()) {
-                $_SESSION['flash'] = "Registration successful. Please login.";
-                header('Location: login.php');
-                exit;
+                // get inserted user id (useful to delete if mailing fails)
+                $userId = $conn->insert_id;
+
+                // --- Send OTP using PHPMailer ---
+                $mail = new PHPMailer(true);
+                try {
+                    $mail->isSMTP();
+                    $mail->Host       = 'smtp.gmail.com';       // <-- EDIT: change if using different SMTP
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = 'davidbwashi@gmail.com';  // <-- EDIT: your SMTP username (e.g. Gmail)
+                    $mail->Password   = 'hssm iwvq nimx otty';    // <-- EDIT: your SMTP password or app password
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                    $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                    $mail->setFrom('noreply@CRAG.com', 'Workers company  Ltd'); // <-- EDIT: sender email & name
+                    $mail->addAddress($email, $username);
+
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Your OTP Verification Code';
+                    $mail->Body    = "
+                        <p>Hello <strong>" . htmlspecialchars($username) . "</strong>,</p>
+                        <p>Your OTP code is: <strong>$otp</strong></p>
+                        <p>Please enter this code on the verification page to activate your account.</p>
+                    ";
+                    $mail->AltBody = "Hello $username, Your OTP code is: $otp";
+
+                    $mail->send();
+
+                    // If mail sent, set session and redirect to OTP page
+                    $_SESSION['verify_email'] = $email;
+                    header('Location: verify_otp.php');
+                    exit;
+                } catch (Exception $e) {
+                    // If mailing failed, remove inserted user to avoid orphan unverified accounts
+                    $del = $conn->prepare("DELETE FROM users WHERE id = ?");
+                    $del->bind_param('i', $userId);
+                    $del->execute();
+                    $del->close();
+
+                    $errors[] = "Failed to send OTP email. Mailer Error: " . $mail->ErrorInfo . " (check SMTP settings)"; // <-- EDIT: message shown to user
+                }
             } else {
                 $errors[] = "Registration error: " . $conn->error;
             }
-            $ins->close();
+            if (isset($ins) && $ins) $ins->close();
         }
     }
 }
