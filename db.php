@@ -12,3 +12,4 @@ if ($conn->connect_error) {
     die("Database connection Failed: " . $conn->connect_error);
 }
 ?>
+ 
