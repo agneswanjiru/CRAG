@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 ?>
 
 
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         <title> Task Manager </title>
@@ -30,18 +30,19 @@ if (!isset($_SESSION['user_id'])) {
         $user_id = $_SESSION['user_id'];
         $result = $conn->query("SELECT * FROM tasks WHERE user_id=$user_id ORDER BY created_at DESC");
 
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>
-                    <td>{$row['id']}</td>
-                    <td>{$row['title']}</td>
-                    <td>{$row['description']}</td>
-                    <td>{$row['status']}</td>
-                    <td>
-                        <a href='update_task.php?id={$row['id']}'>Edit</a> | 
-                        <a href='delete_task.php?id={$row['id']}'>Delete</a>
-                    </td>
-                  </tr>";
-        }
+       while ($row = $result->fetch_assoc()) {
+    echo "<tr>
+            <td>{$row['id']}</td>
+            <td>{$row['title']}</td>
+            <td>{$row['description']}</td>
+            <td>{$row['status']}</td>
+            <td>
+                <a href='update_task.php?id={$row['id']}'>Edit</a> | 
+                <a href='delete_task.php?id={$row['id']}'>Delete</a>
+            </td>
+          </tr>";
+}
+
         ?>
     </table>
     </body>

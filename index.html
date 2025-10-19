@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taskboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+      transition: color 0.3s ease;
+    }
+
+    h1:hover {
+      color: red;
+      cursor: pointer;
+    }
+
+    p {
+      max-width: 800px;
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin: 0 20px 40px 20px;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 15px 25px;
+      border-radius: 10px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .btn {
+      background-color: white;
+      color: #007bff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.1em;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #007bff;
+      color: white;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <h1>Welcome to Taskboard</h1>
+  
+  <p>
+    Our website is an employer to employee management system designed to streamline task allocation,
+    attendance tracking, and work progress monitoring within an organization. It provides an efficient 
+    and transparent way for employers to assign, track, and manage employee responsibilities, all in one integrated dashboard.
+    <br><br>
+    <strong>Join us to discover more about us!!</strong>
+  </p>
+
+  <div class="button-container">
+    <a href="C:\Apache24\htdocs\CRAG\register.php" class="btn">Register</a>
+    <a href="C:\Apache24\htdocs\CRAG\login.php" class="btn">Login</a>
+  </div>
+   <footer>
+    © 2025 Taskboard. All rights reserved.
+  </footer>
+</body>
+</html>
