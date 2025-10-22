@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
 $user = "root";
-$pass = "shiro25";
-$dbname = "task_syst";
+$pass = "1224";
+$dbname = "taskapp";
 
 // Create mysqli connection as $conn
 $conn = new mysqli($host, $user, $pass, $dbname);
