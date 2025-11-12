@@ -3,35 +3,47 @@ include 'db.php';
 session_start();
 
 $errormsg = "";
+
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $role = $_POST['role'];
 
     // Query user with role
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? AND role=?");
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? AND role=? LIMIT 1");
     $stmt->bind_param("ss", $email, $role);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
+
         if (password_verify($password, $user['password'])) {
+            // Store login data
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
-            
-            header("Location: index.php");
-            exit;
+
+    if ($user['role'] === 'employer' || $user['role'] === 'admin') {
+    header("Location: index.php"); // go to index.php instead of dashboard.php
+    exit;
+} elseif ($user['role'] === 'employee') {
+    header("Location: employee_profile.php");
+    exit;
+} else {
+    $errormsg = "Unknown user role!";
+}
+
+
+
         } else {
             $errormsg = "Invalid password!";
         }
     } else {
-        $errormsg = "invalid password or role mismatch!";
+        $errormsg = "Invalid password or role mismatch!";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -140,7 +152,7 @@ if (isset($_POST['login'])) {
         <input type="text" name="email" class="form-control" placeholder="Email" required autocomplete="off">
       </div>
       <div class="mb-3">
-        <input type="password" name="password" class="form-control" placeholder="Password" autocomplete="new-password">
+        <input type="password" name="password" class="form-control" placeholder="Password" required autocomplete="new-password">
       </div>
 
       <!-- Role Selection -->
@@ -168,41 +180,3 @@ if (isset($_POST['login'])) {
 
 </body>
 </html>
-
-<?php
-// ✅ Add this login check code AFTER the HTML
-if (isset($_POST['login'])) {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? AND role=? LIMIT 1");
-    $stmt->bind_param("ss", $email, $role);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
-
-            // Redirect based on role
-            if ($user['role'] === 'admin') {
-                header("Location: admin_dashboard.php");
-            } elseif ($user['role'] === 'employer') {
-                header("Location: employer_dashboard.php");
-            } else {
-                header("Location: employee_dashboard.php");
-            }
-            exit;
-        } else {
-            $errormsg = "Invalid password!";
-        }
-    } else {
-        $errormsg = "No user found with this email & role!";
-    }
-}
-?>

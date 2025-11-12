@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 $employer_id = $_SESSION['user_id'];
 
 // employees list (available first)
-$emps = $conn->prepare("SELECT id,username,availability FROM users WHERE role='employee' ORDER BY availability DESC, username ASC");
+$emps = $conn->prepare("SELECT id, username, specialty, availability FROM users WHERE role='employee' ORDER BY availability DESC, username ASC");
 $emps->execute();
 $emps_res = $emps->get_result();
 
@@ -48,7 +48,10 @@ $tasks_res = $tasks->get_result();
         <select name="employee_id" required>
           <option value="">-- choose employee --</option>
           <?php while ($e = $emps_res->fetch_assoc()): ?>
-            <option value="<?= $e['id'] ?>"><?= htmlspecialchars($e['username']) ?> (<?= $e['availability'] ?>)</option>
+            <option value="<?= $e['id'] ?>">
+  <?= htmlspecialchars($e['username']) ?> - <?= htmlspecialchars($e['specialty']) ?> (<?= $e['availability'] ?>)
+</option>
+s
           <?php endwhile; ?>
         </select>
         <button type="submit" name="assign_task">Assign Task</button>
