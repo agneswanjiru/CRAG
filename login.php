@@ -9,7 +9,7 @@ if (isset($_POST['login'])) {
     $password = $_POST['password'];
     $role = $_POST['role'];
 
-    // Query user with role
+  
     $stmt = $conn->prepare("SELECT * FROM users WHERE email=? AND role=? LIMIT 1");
     $stmt->bind_param("ss", $email, $role);
     $stmt->execute();
@@ -19,13 +19,13 @@ if (isset($_POST['login'])) {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user['password'])) {
-            // Store login data
+            
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
 
     if ($user['role'] === 'employer' || $user['role'] === 'admin') {
-    header("Location: index.php"); // go to index.php instead of dashboard.php
+    header("Location: index.php"); 
     exit;
 } elseif ($user['role'] === 'employee') {
     header("Location: employee_profile.php");
@@ -155,7 +155,7 @@ if (isset($_POST['login'])) {
         <input type="password" name="password" class="form-control" placeholder="Password" required autocomplete="new-password">
       </div>
 
-      <!-- Role Selection -->
+    
       <div class="mb-3">
         <select name="role" class="form-control" required>
           <option value="" disabled selected>Select Role</option>
